@@ -73,8 +73,14 @@
                                         This Function is used to reduce the size of the certain areas of pixels according to the structuring element .
 
 
-    Logic -  OpenCV library has been used for this code. In order to find out the coordinates of the balls, we find out the pixels of the balls
-                and average them individually to get their centers and with a scale factor we get the real world coordinates.*/
+    Logic -  OpenCV library has been used for this code. In order to find out the coordinates of the balls,
+    		we first filter out the components (pixel values) of the image that are not of the same colour as that
+    		of the balls by converting the image to HSV, then converting it to binary and finally applying blurs to
+    		modify this filtered image. After this an edgedetect() function detects all edge points and 
+    		the find_a_ball() function stores the coordinates of the edge points in a vector which are used for
+    		calculating the centers of the ball. Finally this data is written into a file, which is further used
+    		for the algorithm code */
+
 #include <iostream>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -85,12 +91,15 @@ using namespace cv;
 using namespace std;
 
 
+//Structure -> Node - Structure to represent a point in 2D
+//Used while writing the point coordinates in a file
+
 struct Node {
         double x;
         double y;
 };
 
-//
+//Class-> Points - To represent the Points in the program 
 class Points
 {
         public:
@@ -138,6 +147,18 @@ void getBinaryImage (Mat &img)
     }
 }
 
+/*
+
+Function - convertToDigitalisedImage(Mat&, Mat&)
+
+Input - 2 Mat passed by reference: Mat A - 3 channeled, Mat B - single channeled
+
+Output - None (Just stores the 3-channel binary image developed earlier in a single channel format         
+
+Logic - The three channeled input image is searched for white pixels and in the corresponding pixels in the output
+	single channeled image, white values are stored. */
+
+
 void convertToDigitalisedImage(Mat& ImgMatrixA, Mat& ImgMatrixB)
 {
     int i, j;
@@ -161,6 +182,16 @@ void convertToDigitalisedImage(Mat& ImgMatrixA, Mat& ImgMatrixB)
     }
 }
 
+/*
+
+Function - bgr2hsv2bgr(Mat&)
+
+Input - a Mat 3-channeled image
+
+Output - Outputs an image such that the balls remain in their original colour and remaining background turns red. 
+Logic - Converts the image to HSV and then converts those pixels which don’t have H values(hue values) between 
+	10 and 40 to H = 0 (red), and let the balls be in their original colour. */  
+
 void bgr2hsv2bgr(Mat& img)
 {
     Vec3b hsv;
@@ -182,6 +213,23 @@ void bgr2hsv2bgr(Mat& img)
         }
     }
 }
+
+/*
+
+ Function  :  void edgeDetect(Mat & )
+
+ Inputs    :  Mat &ImgMatrix , i.e. reference to some image matrix
+
+ Outputs   :  Changes the given matrix into matrix containing only the edges of the balls
+
+              instead of completely filled balls.
+
+ Logic     :  Checking the value of color of the pixel, after applying Gaussian blur, errosion and dilate
+
+              to DigitalisedImageMatrix, to identify if it's an edge point. The edge point is defined to have
+
+              color value 50 - 150. This function drastically reduces the number of points to be accounted for, per ball.
+ Example   :  edgeDetect(ImageMatrix); */
 
 void edgeDetect(Mat &ImgMatrix)
 {
@@ -315,6 +363,18 @@ void find_a_ball (Mat ImgMatrix, vector<Points>& AllThePoints, vector<Points>& T
 	}
 }
 
+/*
+
+Function - storevalues(vector<Points> &)
+
+Input - a vector of Points type
+
+Output - Creates a file named Points.dat and writes the coordinates of the centres of the balls into that file 
+
+Logic - Uses a temporary instance of the struct Node and a Points iterator to access the vector that stores the 
+	Centre coordinates and then assigns the x and y of a record to the Temp Node and writes it in a file called Points.dat */
+
+
 void storevalues(vector<Points>& Centres)
 {
     ofstream ofile;
@@ -363,7 +423,7 @@ int main()
     cout<<endl<<"Enter actual Length of arena:  ";
     cin>>actual;
     double ratios = actual/(img.rows);
-        //Declaring vectors to store all points for each ball, one by one, and all the centres of balls in the arena
+    //Declaring vectors to store all points for each ball, one by one, and all the centres of balls in the arena
     vector<Points> AllPoints;
     vector<Points> Centre;
     //GaussianBlur(DigitalisedImageMatrix,DigitalisedImageMatrix, Size(9,9), 2,2);
@@ -372,7 +432,7 @@ int main()
 
     vector<Points>::iterator it;         // using iterator to access points stored in vector.
     cout<<"\n\n\n\n\n\nDisplaying center coordinates:\n";
-    for (it = Centre.begin(); it<Centre.end(); ++it)
+    for (it = Centre.begin(); it<Centre.end(); ++it)//To Display the real time coordinatesof all the balls.
         cout<<"\nCenter Coordinates: "<<it->x<<" "<<it->y<<endl;
     waitKey(0);
     storevalues(Centre);
