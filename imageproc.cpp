@@ -108,6 +108,13 @@ class Points
             }
 
 };
+/*
+Function- getBinaryImage() 
+Input- an openCV 3 channel image matrix 
+Output-  none (just converts a coloured image may to a black and white binary image) 
+Logic -  using proper threshold values for the image taken,  the pixels with Red,  Green  and blue values 
+	 corresponding to the balls are converted to white and the remaining are converted to black.  In other 
+	 words,  other colours are  filtered out from the image for easy processing after this.  */
 
 void getBinaryImage (Mat &img)
 {
@@ -130,6 +137,7 @@ void getBinaryImage (Mat &img)
         }
     }
 }
+
 void convertToDigitalisedImage(Mat& ImgMatrixA, Mat& ImgMatrixB)
 {
     int i, j;
