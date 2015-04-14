@@ -397,44 +397,53 @@ int main()
 {
 
     Mat img;
-    img=imread("image5.jpg",1);
-    while(img.cols>1024)
+    img=imread("image.jpg",1);  //image.jpg is the name of the image taken - you ca write your own image name
+    while(img.cols>1024)  //bringing the image to the screen size (maximum size after this loop is the screen size)
     {
         resize(img, img, Size (img.cols/2,img.rows/2));
     }
     namedWindow("ipc",CV_WINDOW_AUTOSIZE);
     imshow("ipc",img);
-    waitKey(0);
+    waitKey(0);		//Press enter here
+    
     cvtColor(img,img,CV_BGR2HSV);
     bgr2hsv2bgr(img);
     cvtColor(img,img,CV_HSV2BGR,0);
     getBinaryImage(img);
     GaussianBlur(img,img,Size(5,5),0,0);
+    
     int erosion_size =5;
     int erosion_type = MORPH_ELLIPSE;
+    
     Mat element = getStructuringElement( erosion_type,Size( 2*erosion_size + 1, 2*erosion_size+1 ),Point( erosion_size, erosion_size ) );
     dilate(img,img,element);
     erode( img, img, element );
-    Mat singleimg = Mat::zeros(Size(img.cols, img.rows),CV_8UC1);
+    
+    Mat singleimg = Mat::zeros(Size(img.cols, img.rows),CV_8UC1);  /*singleimg - name for a single channel image*/
     convertToDigitalisedImage(img,singleimg);
     GaussianBlur(singleimg, singleimg, Size(9,9), 0,0);
     edgeDetect(singleimg);
-    double actual;
+    
+    double actual;	//this is the actual dimension of the arena which is completely present in the image taken
     cout<<endl<<"Enter actual Length of arena:  ";
     cin>>actual;
+    
     double ratios = actual/(img.rows);
+    
     //Declaring vectors to store all points for each ball, one by one, and all the centres of balls in the arena
     vector<Points> AllPoints;
     vector<Points> Centre;
-    //GaussianBlur(DigitalisedImageMatrix,DigitalisedImageMatrix, Size(9,9), 2,2);
+    
     //function call to store the required centres of all the balls in the arena
     find_a_ball(singleimg, AllPoints, Centre, ratios);
 
     vector<Points>::iterator it;         // using iterator to access points stored in vector.
+    
     cout<<"\n\n\n\n\n\nDisplaying center coordinates:\n";
     for (it = Centre.begin(); it<Centre.end(); ++it)//To Display the real time coordinatesof all the balls.
         cout<<"\nCenter Coordinates: "<<it->x<<" "<<it->y<<endl;
-    waitKey(0);
+    
+    waitKey(0);	//Press enter here
     storevalues(Centre);
     return 0;
 
