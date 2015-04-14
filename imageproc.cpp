@@ -84,15 +84,15 @@
 using namespace cv;
 using namespace std;
 
-//Structure -> Node - Structure to represent a point in 2D
-//Used while writing the point coordinates in a file
+//Structure -> Node - Structure to represent a point in 2D.
+//Used while writing the point coordinates in a file.
 struct Node {
         double x;
         double y;
 };
 
 
-//Class-> Points - To represent the Points in the program 
+//Class-> Points - To represent the Points in the program. 
 class Points
 {
         public:
@@ -113,10 +113,12 @@ class Points
 
 /*
 Function- getBinaryImage() 
-Input- an openCV 3 channel image matrix 
-Output-  none (just converts a coloured image may to a black and white binary image) 
-Logic -  using proper threshold values for the image taken,  the pixels with Red,  Green  and blue values corresponding to the balls are converted to white and the remaining are converted to black.  In other words,  other colours are  filtered out from the image for easy processing after this.  */
-
+Input -   an openCV 3 channel image matrix 
+Output-   none (just converts a coloured image may to a black and white binary image) 
+Logic -   using proper threshold values for the image taken,  the pixels with Red,  Green  and blue values 
+          corresponding to the balls are converted to white and the remaining are converted to black. 
+          In other words,  other colours are  filtered out from the image for easy processing after this.  
+*/
 void getBinaryImage (Mat &img)
 {
     for(int i=0;i<img.rows;i++)
@@ -140,11 +142,12 @@ void getBinaryImage (Mat &img)
 }
 
 /*
-Function - convertToDigitalisedImage(Mat&, Mat&)
-Input - 2 Mat passed by reference: Mat A - 3 channeled, Mat B - single channeled
-Output - None (Just stores the 3-channel binary image developed earlier in a single channel format         
-Logic - The three channeled input image is searched for white pixels and in the corresponding pixels in the output single channeled image, white values are stored. */
-         
+Function- convertToDigitalisedImage(Mat&, Mat&)
+Input -   2 Mat passed by reference: Mat A - 3 channeled, Mat B - single channeled
+Output-   None (Just stores the 3-channel binary image developed earlier in a single channel format         
+Logic -   The three channeled input image is searched for white pixels and in the corresponding pixels
+          in the output single channeled image, white values are stored.
+*/
 void convertToDigitalisedImage(Mat& ImgMatrixA, Mat& ImgMatrixB)
 {
     int i, j;
@@ -158,29 +161,24 @@ void convertToDigitalisedImage(Mat& ImgMatrixA, Mat& ImgMatrixB)
                 if (input[ImgMatrixA.cols*i*3+j*3+1] == 255 && input[ImgMatrixA.cols*i*3+j*3+2] == 255 && input[ImgMatrixA.cols*i*3+j*3] ==255)    // image stored in Row Major format
                 {
                     output[ImgMatrixB.cols*i+j] = 255;
-
-                    //output[ImgMatrixB.cols*i+j+1] = 255;
-
-                    //output[ImgMatrixB.cols*i+j+2] = 255;
+                    //output[ImgMatrixB.cols*i+j+1] = 255;   //output[ImgMatrixB.cols*i+j+2] = 255;
                 }
                 else
                 {
                     output[ImgMatrixB.cols*i+j] = 0;
-
-                    //output[ImgMatrixB.cols*i+j+1] = 0;
-
-                    //output[ImgMatrixB.cols*i+j+2] = 0;
+                    //output[ImgMatrixB.cols*i+j+1] = 0;     //output[ImgMatrixB.cols*i+j+2] = 0;
                 }
         }
     }
 }
 
 /*
-Function - bgr2hsv2bgr(Mat&)
-Input - a Mat 3-channeled image
-Output - Outputs an image such that the balls remain in their original colour and remaining background turns red. 
-Logic - Converts the image to HSV and then converts those pixels which don’t have H values(hue values) between 30 and 60 to H = 0 (red), and let the balls be in their original colour. */  
-
+Function- bgr2hsv2bgr(Mat&)
+Input -   a Mat 3-channeled image
+Output-   Outputs an image such that the balls remain in their original colour and remaining background turns red. 
+Logic -   Converts the image to HSV and then converts those pixels which don’t have H values(hue values) 
+          between 30 and 60 to H = 0 (red), and let the balls be in their original colour. 
+*/  
 void bgr2hsv2bgr(Mat& img)
 {
     Vec3b hsv;
@@ -192,7 +190,8 @@ void bgr2hsv2bgr(Mat& img)
             hsv=img.at<Vec3b>(i,j);
             H=hsv.val[0];
            
-            if(H>30&&H<60)           {
+            if(H>30&&H<60)          
+            {
                 //cout<<(int)img.at<Vec3b>(i,j).val[0]<<","<<(int)img.at<Vec3b>(i,j).val[1]<<","<<(int)img.at<Vec3b>(i,j).val[2]<<endl;
 
             }
@@ -212,7 +211,8 @@ void bgr2hsv2bgr(Mat& img)
  Logic     :  Checking the value of color of the pixel, after applying Gaussian blur, errosion and dilate
               to DigitalisedImageMatrix, to identify if it's an edge point. The edge point is defined to have
               color value 50 - 150. This function drastically reduces the number of points to be accounted for, per ball.
- Example   :  edgeDetect(ImageMatrix); */
+ Example   :  edgeDetect(ImageMatrix);
+ */
 void edgeDetect(Mat &ImgMatrix)
 {
     int i, j;
@@ -251,7 +251,6 @@ void edgeDetect(Mat &ImgMatrix)
                and control is returned.
  Example   :   goToNextWhite (ImgMatrix, p, q, AllThePoints);
 */
-
 void goToNextWhite (Mat ImgMatrix, int i, int j, vector<Points>& AllThePoints)
 {
 
@@ -328,7 +327,6 @@ void findCentre(vector<Points>& AllThePoints, vector<Points>& TheCentres, double
               and calls function findCentre(vector &, vector &) to store the centres
               corresponding to various balls in vector TheCentres.
  Example   :  void find_a_ball (DigitalisedImageMatrix, AllPoints, Centres);
-
 */
 void find_a_ball (Mat ImgMatrix, vector<Points>& AllThePoints, vector<Points>& TheCentres, double ratios)
 {
@@ -354,12 +352,13 @@ void find_a_ball (Mat ImgMatrix, vector<Points>& AllThePoints, vector<Points>& T
 }
 
 /*
-Function - storevalues(vector<Points> &)
-Input - a vector of Points type
-Output - Creates a file named Points.dat and writes the coordinates of the centres of the balls into that file 
-Logic - Uses a temporary instance of the struct Node and a Points iterator to access the vector that stores the Centre coordinates and then assigns the x and y of a record to the Temp Node and writes it in a file called Points.dat */
-
-
+Function-storevalues(vector<Points> &)
+Input -  a vector of Points type
+Output-  Creates a file named Points.dat and writes the coordinates of the centres of the balls into that file 
+Logic -  Uses a temporary instance of the struct Node and a Points iterator to access the vector 
+         that stores the Centre coordinates and then assigns the x and y of a record to the Temp Node 
+         and writes it in a file called "Points.dat".
+*/
 void storevalues(vector<Points>& Centres)
 {
     ofstream ofile;
@@ -424,7 +423,7 @@ int main()
     cout<<endl<<"enter actual :  ";
     cin>>actual;
     double ratios = actual/(img.rows);
-        //Declaring vectors to store all points for each ball, one by one, and all the centres of balls in the arena
+    //Declaring vectors to store all points for each ball, one by one, and all the centres of balls in the arena
     vector<Points> AllPoints;
     vector<Points> Centre;
     //GaussianBlur(DigitalisedImageMatrix,DigitalisedImageMatrix, Size(9,9), 2,2);
