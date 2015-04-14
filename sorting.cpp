@@ -68,8 +68,6 @@ class Path
         {
            if(ifile.eof()) break;
            ifile.read((char*)&pathNode[i++], sizeof(Node));
-           //to print input points -
-           cout<<"\n"<< pathNode[i-1].x<<" "<<pathNode[i-1].y;
         }
         ifile.close();
         ballCount=i-1;    //-1 as there is some internal error while copying Node points from file as last entry/point seems to be repeated
@@ -153,6 +151,7 @@ void swap2branchends(int i1, int i2)      //function to swap two branch endpoint
 
         //use swap2branches to find a better, more accurate path
         //printing the path as set of consecutive points on it:
+        cout<<"\nPrinting the optimal solution in Cartesian System:\n"
         for(int i=0; i<ballCount; i++)
         {
             cout<<"\n("<<pathNode[i].x<<" "<<pathNode[i].y<<")";
@@ -294,12 +293,7 @@ class BotVectorPath
 
              if(pathVector[i].theta<-180.0)
                  pathVector[i].theta=360.00+ pathVector[i].theta;        // to optimise turning
-             //printing r, theta values in reverse order
-             cout<< "\n"<<pathVector[i].radius<<" units,"<<pathVector[i].theta <<"degrees";
         }
-
-        //printing for i=0
-        cout<< "\n"<<pathVector[0].radius<<"units, "<<pathVector[0].theta<<"degrees";
 
      }
 
@@ -347,10 +341,12 @@ int main()
 
     int count = BotVecPath.getBranchCount();
     ofstream ofile("Instr.dat", ios::binary|ios::trunc);
+    
+    cout<<"\nPrinting the Optimal Solution as a set of Vectors:\n"
     for(int i=0; i<count;i++)
     {  
-         BranchVector BranchV=BotVecPath.getBranch(i);
-        //cout<<"\n"<<BranchV.radius<<","<<BranchV.theta;
+        BranchVector BranchV=BotVecPath.getBranch(i);
+        cout<<"\n"<<BranchV.radius<<","<<BranchV.theta;
         ofile.write((char*)&BranchV, sizeof(BranchVector));  // writing into output instruction file
     }
     ofile.close();
