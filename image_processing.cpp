@@ -1,3 +1,4 @@
+
 /* Program - Image Processing to identify balls and find out the coordinates of the centres of the balls
 
     Header Files Used:  1.Iostream
@@ -12,7 +13,7 @@
                         2.opencv-
                             ->OpenCV (Open Source Computer Vision) is a library of programming functions mainly aimed at real-time computer vision.
                             ->All the Image processing in the code is taken care by opencv library function
-                                and pre defined data types of opencv such as Mat,etc
+                                and pre defined data tyes of opencv such as Mat,etc
                             ->In Built functions and Data types of opencv library used in this code:
 
                                 KeyWords
@@ -72,8 +73,13 @@
                                         This Function is used to reduce the size of the certain areas of pixels according to the structuring element .
 
 
-    Logic -  OpenCV library has been used for this code. In order to find out the coordinates of the balls, we first filter out the components (pixel values) of the image that are not of the same colour as that of the balls by converting the image to HSV, then converting it to binary and finally applying blurs to modify this filtered image. After this an edgedetect() function detects all edge points and  the find_a_ball() function stores the coordinates of the edge points in a vector which are used for calculating the centers of the ball. Finally this data is written into a file, which is further used for the algorithm code */
-
+    Logic -  OpenCV library has been used for this code. In order to find out the coordinates of the balls,
+    		we first filter out the components (pixel values) of the image that are not of the same colour as that
+    		of the balls by converting the image to HSV, then converting it to binary and finally applying blurs to
+    		modify this filtered image. After this an edgedetect() function detects all edge points and 
+    		the find_a_ball() function stores the coordinates of the edge points in a vector which are used for
+    		calculating the centers of the ball. Finally this data is written into a file, which is further used
+    		for the algorithm code */
 
 #include <iostream>
 #include <opencv2/core/core.hpp>
@@ -84,15 +90,16 @@
 using namespace cv;
 using namespace std;
 
-//Structure -> Node - Structure to represent a point in 2D.
-//Used while writing the point coordinates in a file.
+
+//Structure -> Node - Structure to represent a point in 2D
+//Used while writing the point coordinates in a file
+
 struct Node {
         double x;
         double y;
 };
 
-
-//Class-> Points - To represent the Points in the program. 
+//Class-> Points - To represent the Points in the program 
 class Points
 {
         public:
@@ -110,22 +117,21 @@ class Points
             }
 
 };
-
 /*
 Function- getBinaryImage() 
-Input -   an openCV 3 channel image matrix 
-Output-   none (just converts a coloured image may to a black and white binary image) 
-Logic -   using proper threshold values for the image taken,  the pixels with Red,  Green  and blue values 
-          corresponding to the balls are converted to white and the remaining are converted to black. 
-          In other words,  other colours are  filtered out from the image for easy processing after this.  
-*/
+Input- an openCV 3 channel image matrix 
+Output-  none (just converts a coloured image may to a black and white binary image) 
+Logic -  using proper threshold values for the image taken,  the pixels with Red,  Green  and blue values 
+	 corresponding to the balls are converted to white and the remaining are converted to black.  In other 
+	 words,  other colours are  filtered out from the image for easy processing after this.  */
+
 void getBinaryImage (Mat &img)
 {
     for(int i=0;i<img.rows;i++)
     {
         for(int j=0;j<img.cols;j++)
         {
-            if((int)img.data[i*img.cols*3+j*3+2]>190)
+            if((int)img.data[i*img.cols*3+j*3+2]>190&& (int)img.data[i*img.cols*3+j*3+1]<100 && (int)img.data[i*img.cols*3+j*3+0]<100)
             {
                 img.data[i*img.cols*3+j*3+2]=255;
                 img.data[i*img.cols*3+j*3+1]=255;
@@ -142,12 +148,17 @@ void getBinaryImage (Mat &img)
 }
 
 /*
-Function- convertToDigitalisedImage(Mat&, Mat&)
-Input -   2 Mat passed by reference: Mat A - 3 channeled, Mat B - single channeled
-Output-   None (Just stores the 3-channel binary image developed earlier in a single channel format         
-Logic -   The three channeled input image is searched for white pixels and in the corresponding pixels
-          in the output single channeled image, white values are stored.
-*/
+
+Function - convertToDigitalisedImage(Mat&, Mat&)
+
+Input - 2 Mat passed by reference: Mat A - 3 channeled, Mat B - single channeled
+
+Output - None (Just stores the 3-channel binary image developed earlier in a single channel format         
+
+Logic - The three channeled input image is searched for white pixels and in the corresponding pixels in the output
+	single channeled image, white values are stored. */
+
+
 void convertToDigitalisedImage(Mat& ImgMatrixA, Mat& ImgMatrixB)
 {
     int i, j;
@@ -161,24 +172,26 @@ void convertToDigitalisedImage(Mat& ImgMatrixA, Mat& ImgMatrixB)
                 if (input[ImgMatrixA.cols*i*3+j*3+1] == 255 && input[ImgMatrixA.cols*i*3+j*3+2] == 255 && input[ImgMatrixA.cols*i*3+j*3] ==255)    // image stored in Row Major format
                 {
                     output[ImgMatrixB.cols*i+j] = 255;
-                    //output[ImgMatrixB.cols*i+j+1] = 255;   //output[ImgMatrixB.cols*i+j+2] = 255;
                 }
                 else
                 {
                     output[ImgMatrixB.cols*i+j] = 0;
-                    //output[ImgMatrixB.cols*i+j+1] = 0;     //output[ImgMatrixB.cols*i+j+2] = 0;
+
                 }
         }
     }
 }
 
 /*
-Function- bgr2hsv2bgr(Mat&)
-Input -   a Mat 3-channeled image
-Output-   Outputs an image such that the balls remain in their original colour and remaining background turns red. 
-Logic -   Converts the image to HSV and then converts those pixels which don’t have H values(hue values) 
-          between 30 and 60 to H = 0 (red), and let the balls be in their original colour. 
-*/  
+
+Function - bgr2hsv2bgr(Mat&)
+
+Input - a Mat 3-channeled image
+
+Output - Outputs an image such that the balls remain in their original colour and remaining background turns red. 
+Logic - Converts the image to HSV and then converts those pixels which don’t have H values(hue values) between 
+	10 and 40 to H = 0 (red), and let the balls be in their original colour. */  
+
 void bgr2hsv2bgr(Mat& img)
 {
     Vec3b hsv;
@@ -188,31 +201,36 @@ void bgr2hsv2bgr(Mat& img)
         for(int j=0;j<img.cols;j++)
         {
             hsv=img.at<Vec3b>(i,j);
-            H=hsv.val[0];
-           
-            if(H>30&&H<60)          
+            H=hsv.val[2];
+            if(H>10&&H<40)
             {
-                //cout<<(int)img.at<Vec3b>(i,j).val[0]<<","<<(int)img.at<Vec3b>(i,j).val[1]<<","<<(int)img.at<Vec3b>(i,j).val[2]<<endl;
-
+                continue;
             }
             else
             {
-                   img.at<Vec3b>(i,j).val[0]=0;
-             }
+                   img.at<Vec3b>(i,j).val[0]=180;
+            }
         }
     }
 }
 
 /*
+
  Function  :  void edgeDetect(Mat & )
+
  Inputs    :  Mat &ImgMatrix , i.e. reference to some image matrix
+
  Outputs   :  Changes the given matrix into matrix containing only the edges of the balls
+
               instead of completely filled balls.
+
  Logic     :  Checking the value of color of the pixel, after applying Gaussian blur, errosion and dilate
+
               to DigitalisedImageMatrix, to identify if it's an edge point. The edge point is defined to have
+
               color value 50 - 150. This function drastically reduces the number of points to be accounted for, per ball.
- Example   :  edgeDetect(ImageMatrix);
- */
+ Example   :  edgeDetect(ImageMatrix); */
+
 void edgeDetect(Mat &ImgMatrix)
 {
     int i, j;
@@ -226,12 +244,12 @@ void edgeDetect(Mat &ImgMatrix)
             if (input[ImgMatrix.cols*i+j]>100 && input[ImgMatrix.cols*i+j]<200)
             {
                 output[i*ImgMatrix.cols+j]=255;
-                
+
             }
             else
             {
                 output[i*ImgMatrix.cols+j]=0;
-                
+
             }
         }
     }
@@ -251,12 +269,9 @@ void edgeDetect(Mat &ImgMatrix)
                and control is returned.
  Example   :   goToNextWhite (ImgMatrix, p, q, AllThePoints);
 */
+
 void goToNextWhite (Mat ImgMatrix, int i, int j, vector<Points>& AllThePoints)
 {
-
-    namedWindow("Final", CV_WINDOW_AUTOSIZE);
-    imshow("Final", ImgMatrix);
-    
     if (i>=ImgMatrix.rows || i<0 || j>=ImgMatrix.cols || j<0) return;
 
 	else
@@ -264,15 +279,13 @@ void goToNextWhite (Mat ImgMatrix, int i, int j, vector<Points>& AllThePoints)
         Points Temp(i,j);
         AllThePoints.push_back(Temp);
         unsigned char* output = (unsigned char*) (ImgMatrix.data);
-        output[ImgMatrix.cols*j + i] = 0;                      // turn the current point to black(COLOR==0) so that we don't go back to this pixel again
-        cout<<"abc"<<i<<" "<<j<<endl;
-
+        output[ImgMatrix.cols*i + j] = 0;                      // turn the current point to black(COLOR==0) so that we don't go back to this pixel again.
         for (int p = i-1; p<=i+1; p++)
         {
             for (int q=j-1; q<=j+1; q++)
             {
                 if (p==i && q==j) {}
-                else if (p>=0 && q>=0 && p<ImgMatrix.rows && q<ImgMatrix.cols  && output[ImgMatrix.cols*q + p] == 255)     // finding the next WHITE pixel IN RANGE and neighbour to given pixel
+                else if (p>=0 && q>=0 && p<ImgMatrix.rows && q<ImgMatrix.cols  && output[ImgMatrix.cols*p + q] == 255)     // finding the next WHITE pixel IN RANGE and neighbour to given pixel
                 {
                     goToNextWhite(ImgMatrix, p, q, AllThePoints);
                 }
@@ -308,6 +321,8 @@ void findCentre(vector<Points>& AllThePoints, vector<Points>& TheCentres, double
     double centreX = sumOfX/totalCount;
     double centreY = sumOfY/totalCount;
 
+    //cout<<"\nPrinting Center:"<<centreX<<" , "<<centreY;
+
     Points Temp;
     Temp.x = 1000*centreX*scale;
     Temp.y = 1000*centreY*scale;            //scaling up the x and y coordinates to bring back to original scale
@@ -327,38 +342,39 @@ void findCentre(vector<Points>& AllThePoints, vector<Points>& TheCentres, double
               and calls function findCentre(vector &, vector &) to store the centres
               corresponding to various balls in vector TheCentres.
  Example   :  void find_a_ball (DigitalisedImageMatrix, AllPoints, Centres);
+
 */
 void find_a_ball (Mat ImgMatrix, vector<Points>& AllThePoints, vector<Points>& TheCentres, double ratios)
 {
 	int i, j;
 	AllThePoints.clear();
-	 namedWindow("Final", CV_WINDOW_AUTOSIZE);
     for (i=0; i<ImgMatrix.rows; i++)
 	{
 		for (j=0; j<ImgMatrix.cols; j++)
 		{
             unsigned char* output = (unsigned char*) (ImgMatrix.data);
-			if (output[ImgMatrix.cols*j+i] == 255)                        // Goes in if a white-pixel(COLOR==255) of the ball is located
+			if (output[ImgMatrix.cols*i+j] == 255)                        // Goes in if a white-pixel(COLOR==255) of the ball is located
 			{
                 goToNextWhite(ImgMatrix, i, j, AllThePoints);
-                
                 findCentre(AllThePoints, TheCentres, ratios);      // function call to findCentre(...), after AllThePoints has been allocated the required pixels' data
                 AllThePoints.clear();
-                imshow("Final", ImgMatrix);
-                waitKey(0);
-			}
+            }
 		}
 	}
 }
 
 /*
-Function-storevalues(vector<Points> &)
-Input -  a vector of Points type
-Output-  Creates a file named Points.dat and writes the coordinates of the centres of the balls into that file 
-Logic -  Uses a temporary instance of the struct Node and a Points iterator to access the vector 
-         that stores the Centre coordinates and then assigns the x and y of a record to the Temp Node 
-         and writes it in a file called "Points.dat".
-*/
+
+Function - storevalues(vector<Points> &)
+
+Input - a vector of Points type
+
+Output - Creates a file named Points.dat and writes the coordinates of the centres of the balls into that file 
+
+Logic - Uses a temporary instance of the struct Node and a Points iterator to access the vector that stores the 
+	Centre coordinates and then assigns the x and y of a record to the Temp Node and writes it in a file called Points.dat */
+
+
 void storevalues(vector<Points>& Centres)
 {
     ofstream ofile;
@@ -368,6 +384,7 @@ void storevalues(vector<Points>& Centres)
     temp.x =0;
     temp.y =0;
     ofile.write ((char*)&temp, sizeof(temp));
+    //cout<<"\n\n\nn\n\nDisplaying center coordinates:\n";
     for (it = Centres.begin(); it<Centres.end(); ++it)
         {
             temp.x = it->x;
@@ -376,77 +393,58 @@ void storevalues(vector<Points>& Centres)
         }
 }
 
-
 int main()
 {
-    Mat img;
-    img=imread("image.jpg",1);
-    cout<<img.channels();
-    resize(img, img, Size (img.rows/4,img.cols/4));
 
-    cvtColor(img,img,CV_BGR2HSV);
+    Mat img;
+    img=imread("image.jpg",1);  //image.jpg is the name of the image taken - you ca write your own image name
+    while(img.cols>1024)  //bringing the image to the screen size (maximum size after this loop is the screen size)
+    {
+        resize(img, img, Size (img.cols/2,img.rows/2));
+    }
     namedWindow("ipc",CV_WINDOW_AUTOSIZE);
     imshow("ipc",img);
-    waitKey(0);
-
+    waitKey(0);		//Press enter here
+    
+    cvtColor(img,img,CV_BGR2HSV);
     bgr2hsv2bgr(img);
-    imshow("ipc",img);
-    waitKey(0);
-
     cvtColor(img,img,CV_HSV2BGR,0);
     getBinaryImage(img);
-    GaussianBlur(img,img,Size(9,9),0,0);
-    imshow("ipc",img);
-    waitKey(0);
-
+    GaussianBlur(img,img,Size(5,5),0,0);
+    
     int erosion_size =5;
     int erosion_type = MORPH_ELLIPSE;
+    
     Mat element = getStructuringElement( erosion_type,Size( 2*erosion_size + 1, 2*erosion_size+1 ),Point( erosion_size, erosion_size ) );
-
     dilate(img,img,element);
     erode( img, img, element );
-    imshow("ipc",img);
-    waitKey(0);
-
-    Mat singleimg = Mat::zeros(Size(img.cols, img.rows),CV_8UC1);
+    
+    Mat singleimg = Mat::zeros(Size(img.cols, img.rows),CV_8UC1);  /*singleimg - name for a single channel image*/
     convertToDigitalisedImage(img,singleimg);
-    namedWindow("Display1", CV_WINDOW_AUTOSIZE);
-    imshow ("Display1", singleimg);
-    waitKey(0);
-
     GaussianBlur(singleimg, singleimg, Size(9,9), 0,0);
     edgeDetect(singleimg);
-    imshow("ipc",singleimg);
-    waitKey(0);
-
-    double actual;
-    cout<<endl<<"enter actual :  ";
+    
+    double actual;	//this is the actual dimension of the arena which is completely present in the image taken
+    cout<<endl<<"Enter actual Length of arena:  ";
     cin>>actual;
+    
     double ratios = actual/(img.rows);
+    
     //Declaring vectors to store all points for each ball, one by one, and all the centres of balls in the arena
     vector<Points> AllPoints;
     vector<Points> Centre;
-    //GaussianBlur(DigitalisedImageMatrix,DigitalisedImageMatrix, Size(9,9), 2,2);
-    imshow("Display", singleimg);
-    waitKey(3);
-
+    
     //function call to store the required centres of all the balls in the arena
     find_a_ball(singleimg, AllPoints, Centre, ratios);
-    imshow("Display", img);
-
-    waitKey(3);
 
     vector<Points>::iterator it;         // using iterator to access points stored in vector.
-
+    
     cout<<"\n\n\n\n\n\nDisplaying center coordinates:\n";
-    for (it = Centre.begin(); it<Centre.end(); ++it)
+    for (it = Centre.begin(); it<Centre.end(); ++it)//To Display the real time coordinatesof all the balls.
         cout<<"\nCenter Coordinates: "<<it->x<<" "<<it->y<<endl;
-
-    waitKey(0);
+    
+    waitKey(0);	//Press enter here
     storevalues(Centre);
     return 0;
 
 }
-
-
-

@@ -14,7 +14,9 @@ struct Point
     double theta;
 };
 
-/*HANDLE -> In windows programming, the windows maintains a table of all icons, ports, menus, etc, and each file has a unique identifier through which it can be accessed. Windows is given the handle and it returns the port we want.*/
+/*HANDLE -> In windows programming, the windows maintains a table of all icons, ports, menus, etc, 
+and each file has a unique identifier through which it can be accessed. Windows is given the handle
+and it returns the port we want.*/
  
 HANDLE hPort = CreateFile("COM3", GENERIC_WRITE|GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
@@ -23,11 +25,16 @@ DCB dcb;
 
 
 /* DWORD - DWORD is datatype used to represent 32-bit quantities in Windows */
+
 /*
 Function - writebyte();
-Input       - unsigned char* , (pointer to an unsigned char data)
-Output    - bool - TRUE or FALSE
-Logic      - This function is used for writing a character (only 1 byte) on to the COM port (given by Handle hPort. First of all it checks whether the Port can be opened or not  by checking GetCommState(),if FALSE, function returns, else the Port Baud rate, bytesize, parity , etc are specified and then data is written on to the port using writeFIle(), which returns TRUE if data is written successfully, else returns FALSE.
+Input    - unsigned char* , (pointer to an unsigned char data)
+Output   - bool - TRUE or FALSE
+Logic    - This function is used for writing a character (only 1 byte) on to the COM port 
+         (given by Handle hPort. First of all it checks whether the Port can be opened or not 
+         by checking GetCommState(),if FALSE, function returns, else the Port Baud rate, bytesize, parity ,
+         etc are specified and then data is written on to the port using writeFIle(),
+         which returns TRUE if data is written successfully, else returns FALSE.
 Example -  char data = 0x05;  bool x =writebyte(&data);
 */
 
@@ -55,12 +62,15 @@ bool writebyte (unsigned char* data)
 
 /* BYTE -> BYTE is a datatype used to represent 8-bit data in Windows Programming*/
 /*
-Function - readByte()
-Input       - None
+Function  - readByte()
+Input     - None
 Output    - ASCII value of the character(byte) read at the port
-Logic      - This function reads a BYTE (8 bit) data from the port and then first checks whether the COM PORT is accessible or not. If it is, then SetCommMask() is called. 
+Logic     - This function reads a BYTE (8 bit) data from the port and then first checks whether 
+            the COM PORT is accessible or not. If it is, then SetCommMask() is called. 
 SetCommMask() - Specifies a set of events to be monitored for a communications device.
-Then the function waits until the COM event is finished, i.e. the entire COM file is received. Then this value is read and stored in BYTE byte, and finally an int variable of the type int with ASCII value of BYTE character is returned.*/  
+            Then the function waits until the COM event is finished, 
+            i.e. the entire COM file is received. Then this value is read and stored in BYTE byte, 
+            and finally an int variable of the type int with ASCII value of BYTE character is returned.*/  
   
 int readByte()
 {
@@ -129,50 +139,43 @@ int main()
     unsigned char datahigh;
     unsigned char datalow;
     int b=0;
-    //oint Temp;
-    if (!ifile) return 0;
+    
+    if (!ifile) return 0;           // If the file is empty exit.
     while (!ifile.eof())
     {
 
-        ifile.read((char*)&Temp, sizeof(Temp));
-        if (ifile.eof())
-            break;
+          ifile.read((char*)&Temp, sizeof(Temp));
+       
+          if (ifile.eof())  break;
+          //now this sends angle
+          int signbit;
+          if (Temp.theta >=0) signbit = 0;
+          else if (Temp.theta <0) signbit =2;
 
-        //now this sends angle
-        int signbit;
-        if (Temp.theta >=0) signbit = 0;
-        else if (Temp.theta <0) signbit =2;
-
-        int angle = (int) (abs(Temp.theta));
-        int binaryAngle=convert_to_binary(angle);
-        datalow=(unsigned char) convert_to_int(binaryAngle%1000000)*4 + signbit ;  // storing the last 6 bits of theta and b0=1, b1=1 for forward , positive  value respectively
-        datahigh=(unsigned char) convert_to_int(binaryAngle/1000000);     // storing the bits after the first 6 bits
-        //cout<<(int) datahigh <<(int) datalow;
-        if (writebyte(&datalow)) cout<<"\nData Low Sent\n";
-        cout<<"\n Data Received::"<<readByte();
-        if (writebyte(&datahigh)) cout<<"\nData High Sent\n";
-        cout<<"\n Data Received::"<<readByte();
-
-
-        //sends distance
-        int distance=(int)(Temp.r*10);    //converting into mm
-        int binaryDistance=convert_to_binary(distance);
-        datalow=(unsigned char) convert_to_int(binaryDistance%1000000)*4 + 3 ;  // storing the last 6 bits of distance and b0=1, b1=1 for forward , positive  value respectively
-        datahigh=(unsigned char) convert_to_int(binaryDistance/1000000);     // storing the bits after the first 6 bits
-        //cout<<(int) datahigh <<(int) datalow;
-        if (writebyte(&datalow)) cout<<"\nData Low Sent\n";
-        cout<<"\n Data Received::"<<readByte();
-        if (writebyte(&datahigh)) cout<<"\nData High Sent\n";
-        cout<<"\n Data Received::"<<readByte();    //converting into mm
+          int angle = (int) (abs(Temp.theta));
+          int binaryAngle=convert_to_binary(angle);
+          datalow=(unsigned char) convert_to_int(binaryAngle%1000000)*4 + signbit ;  // storing the last 6 bits of theta and b0=1, b1=1 for forward ,
+                                                                                     //positive  value respectively
+          datahigh=(unsigned char) convert_to_int(binaryAngle/1000000);              // storing the bits after the first 6 bits
+        
+          if (writebyte(&datalow)) cout<<"\nData Low Sent\n";
+             cout<<"\n Data Received::"<<readByte();
+          if (writebyte(&datahigh)) cout<<"\nData High Sent\n";
+             cout<<"\n Data Received::"<<readByte();
 
 
-
-        /*for (i=0; i<=1; i++)
-        {
-            int val = (int)(Temp.r);
-            int bin = convert_to_binary(val);
-
-        }*/
+          //sends distance
+          int distance=(int)(Temp.r*10);    //converting into mm
+          int binaryDistance=convert_to_binary(distance);
+          datalow=(unsigned char) convert_to_int(binaryDistance%1000000)*4 + 3 ;  // storing the last 6 bits of distance and b0=1, b1=1 for forward , 
+                                                                                  //positive  value respectively
+          datahigh=(unsigned char) convert_to_int(binaryDistance/1000000);        // storing the bits after the first 6 bits
+        
+          if (writebyte(&datalow)) cout<<"\nData Low Sent\n";
+             cout<<"\n Data Received::"<<readByte();                              // Recieving from XBee to synchronize transmission.
+          if (writebyte(&datahigh)) cout<<"\nData High Sent\n";
+             cout<<"\n Data Received::"<<readByte();                              // Recieving from XBee to synchronize transmission.
+    
     }
     CloseHandle(hPort);
 }
