@@ -1,11 +1,10 @@
- #include<iostream>
+#include<iostream>
 #include<fstream>
 #include<cmath>
 
 namespace constants
 {
   const double PI=3.14159265;
-  const int NMax=100;   //global variable for assumed max number of balls
   const int NoOfCycles=5;   // for optimal no. of cycles for optimalSolutionWithSwap()
 }
 
@@ -13,13 +12,15 @@ using namespace constants;
 using namespace std;
 
 //Node in x, y because Cartesian coordinates allow easy swapping of nodes in path
-struct Node                         
+struct Node
 {
     double x, y;
+    Node *nextNode;
     Node()
     {
         x=0.0;
         y=0.0;
+        nextNode=NULL;
     }
 
 };
@@ -51,40 +52,51 @@ double absolute( double x)
 
 class Path
 {
-    Node pathNode[NMax];
-
+    Node *pathNode, *firstNode;
     int ballCount;
     double minPathLength;
    public:
     double branchLength(int nodePos1, int nodePos2);  //distance between nodePos1 and nodePos2
     void sortForGreedyAlgorithm();
+    void convertPathToArray();
+    void pushBackAnotherNode();
 
     Path()                                   // Constructor to initialise path and set it with 'Greedy Salesman' Algorithm
     {
-        int i=0;
+        firstNode=pathNode=NULL;
+        ballCount=0;
 
         ifstream ifile("Points.dat", ios::binary);
         while(!ifile.eof())
         {
            if(ifile.eof()) break;
-           ifile.read((char*)&pathNode[i++], sizeof(Node));
+           pushBackAnotherNode();
+           ifile.read((char*)(pathNode), sizeof(Node));
         }
         ifile.close();
-        ballCount=i-1;    //-1 as there is some internal error while copying Node points from file as last entry/point seems to be repeated
+
+        ballCount--;    //-1 as there is some internal error while copying Node points from file as last entry/point seems to be repeated
+
+        convertPathToArray();
 
         sortForGreedyAlgorithm();                     //Function Call to sort for approximately shortest path using 'Greedy Salesman' Algorithm
 
         minPathLength=0;
-        for(i=0; i<ballCount-1; i++)
+        for(int i=0; i<ballCount-1; i++)
         {
             minPathLength+=branchLength(i,i+1);       //Additive Accumulation idiom to calculate minPathLength obtained after sorting
         }
 
     }
+    ~Path()
+    {
+        delete[] pathNode;
+    }
+
 
 
     /*
-    Function  : swap2branchends(int, int)
+    Function  : swap2BranchEnds(int, int)
     Input     : int i1, int i2,  i.e. indices of the fixed end points
                 where corresponding next, pervious end points are to be swapped
     Output    : pathNode[] representing a path with the two specified end points(i1+1, i2-1)
@@ -94,10 +106,10 @@ class Path
                 Also i1<i2 is necessary for the loop and thus the code snippet for the same is implemented.
                 (given with comments)
 
-    Example   : BotPath.swap2branchends(0,3);
+    Example   : BotPath.swap2BranchEnds(0,3);
     */
-    
-void swap2branchends(int i1, int i2)      //function to swap two branch endpoints and set the path accordingly
+
+void swap2BranchEnds(int i1, int i2)      //function to swap two branch endpoints and set the path accordingly
     {
        if(i1>i2)
        {   int temp=i1;
@@ -143,7 +155,7 @@ void swap2branchends(int i1, int i2)      //function to swap two branch endpoint
                    if(branchLength(i,i+1)+branchLength(j-1,j)>branchLength(i,j-1)+branchLength(i+1,j))
                    {
                        minPathLength=minPathLength-(branchLength(i,i+1)+branchLength(j,j-1))+(branchLength(i,j-1)+branchLength(i+1,j));
-                       swap2branchends(i,j);
+                       swap2BranchEnds(i,j);
                    }
 
            }
@@ -151,10 +163,10 @@ void swap2branchends(int i1, int i2)      //function to swap two branch endpoint
 
         //use swap2branches to find a better, more accurate path
         //printing the path as set of consecutive points on it:
-        cout<<"\nPrinting the optimal solution in Cartesian System:\n"
-        for(int i=0; i<ballCount; i++)
+        cout<<"\nPrinting the optimal solution in Cartesian System:\n";
+        for(int k=0; k<ballCount; k++)
         {
-            cout<<"\n("<<pathNode[i].x<<" "<<pathNode[i].y<<")";
+            cout<<"\n("<<pathNode[k].x<<" "<<pathNode[k].y<<")";
         }
 
     }
@@ -194,6 +206,54 @@ void swap2branchends(int i1, int i2)      //function to swap two branch endpoint
         return ballCount;
     }
 };
+ /*
+    Function  : pushBackAnotherNode()
+    Input     : void
+    Output    : Requests for heap memory and stores the address in pathNode, to be used as a new Node point.
+    Logic     : Using new statement to request for memory from the heap for the new node. Also, 
+                the last node created stores the address of the new node in its data member -'nextNode'.
+                Thus, implementing the function for the linked list of nodes, for insertion of new entry. 
+    Example   : pushBackAnotherNode();
+    */
+    void Path::pushBackAnotherNode()
+    {
+        if(pathNode==NULL&&firstNode==NULL)
+        {
+            pathNode=new Node;
+            firstNode=pathNode;
+            ballCount++;
+        }
+        else
+        {
+            pathNode->nextNode=new Node;
+            pathNode=pathNode->nextNode;
+            ballCount++;
+        }
+    }
+
+  /*
+    Function  : void convertPathToArray()
+    Input     : void
+    Output    : pathNode[] is created containing all the points in the file, which were earlier stored as a linked list.
+    Logic     : Function requests for an array of heap memory of type Node, pointed to by pointer pathNode. All the entries 
+                of the linked list are copied into the pathNode array. Copying is implemented using simple accession of linked list 
+                elements, starting from first element and accessing the next element with the address stored in data member 'nextNode'. 
+    Example   : void convertPathToArray();
+    */
+    void Path::convertPathToArray()
+    {
+        pathNode = new Node[ballCount];
+
+        for(int i=0; i<ballCount; i++)
+        {
+            pathNode[i] = *firstNode;
+            delete firstNode;
+            firstNode = pathNode[i].nextNode;
+            pathNode[i].nextNode=NULL;
+        }
+        delete firstNode;  // as due to some internal error while  copying Node points from file as last entry/point seems to be repeated
+                          // firstNode points to that not required Node Point which needs to be deleted.
+    }
 
 /*
   Function  : branchLength(int , int )
@@ -247,19 +307,21 @@ void Path::sortForGreedyAlgorithm()                 //Function applying Greedy S
 
 
 class BotVectorPath
-{  
-     BranchVector pathVector[NMax-1] ;
+{
+    BranchVector* pathVector;
     int branchCount;
 
    public:
 
     BotVectorPath( Path P )
     {
+        branchCount=P.getBallCount()-1;
+        pathVector = new BranchVector[branchCount];
         Node Node1, Node2;
 
         int i=0;
-        branchCount=P.getBallCount()-1;
 
+        cout<<"\n\n\nPrinting the optimal path as set of Vectors in Polar Coordinates:\n";
         for(i=0; i< branchCount ; i++)
         {   Node1=P.getPathNode(i);
             Node2=P.getPathNode(i+1);                       // Node1 and 2 are the initial and the final points of the vector respectively
@@ -276,10 +338,12 @@ class BotVectorPath
             {
               if(Node2.y>Node1.y)
                 pathVector[i].theta=90;
-              else
+              else if(Node2.y<Node1.y)
                 pathVector[i].theta=270;
+              else 
+                pathVector[i].theta=0;      // both the points are same!
             }
-            //printing r, theta values in reverse order
+            //printing r, theta values in order
             cout<< "\n"<<pathVector[i].radius<<" units,"<<pathVector[i].theta <<"degrees";
 
         }
@@ -296,6 +360,10 @@ class BotVectorPath
         }
 
      }
+     ~BotVectorPath()
+     {
+         delete[] pathVector;
+     }
 
      /*
       Function  : getBranch(int)
@@ -305,7 +373,7 @@ class BotVectorPath
       Logic     : It's an accessor function returning an element of an array pathVector[]
       Example   : BranchVector B=BotVecPath.getBranch(0);
      */
-    
+
      BranchVector& getBranch(int pos)
      {
           return pathVector[pos];
@@ -341,12 +409,12 @@ int main()
 
     int count = BotVecPath.getBranchCount();
     ofstream ofile("Instr.dat", ios::binary|ios::trunc);
-    
-    cout<<"\nPrinting the Optimal Solution as a set of Vectors:\n"
+
+    cout<<"\n\n\nPrinting the Optimal Solution as a set of Instructions in (distance, angle) format:\n";
     for(int i=0; i<count;i++)
-    {  
+    {
         BranchVector BranchV=BotVecPath.getBranch(i);
-        cout<<"\n"<<BranchV.radius<<","<<BranchV.theta;
+        cout<<"\n ("<<BranchV.radius<<" , "<<BranchV.theta<<")";
         ofile.write((char*)&BranchV, sizeof(BranchVector));  // writing into output instruction file
     }
     ofile.close();
