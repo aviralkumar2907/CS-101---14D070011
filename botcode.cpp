@@ -51,7 +51,7 @@ void buzzer_on (void)
 }
 
 /*
-Function: void buzzer_on (void)
+Function: void buzzer_off (void)
 Inputs: void
 Outputs: Stops the buzzer by setting the buzzer on PORTC PIN3 bit low as soon as the function is called.
 Logic: Sets PINC 3 bit as low(i.e. low) and remaining bits unchanged  using masking.
