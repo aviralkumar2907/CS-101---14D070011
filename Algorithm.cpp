@@ -167,7 +167,7 @@ void swap2BranchEnds(int i1, int i2)      //function to swap two branch endpoint
         cout<<"\nPrinting the optimal solution in Cartesian System:\n";
         for(int k=0; k<ballCount; k++)
         {
-            cout<<"\n("<<pathNode[k].x<<" "<<pathNode[k].y<<")";
+            cout<<"\n("<<pathNode[k].x<<", "<<pathNode[k].y<<")";
         }
 
     }
@@ -286,7 +286,7 @@ double Path::branchLength(int nodePos1, int nodePos2)  //distance between nodePo
              based on distances between nodes. (Given fixed initial point.) According to the Greedy
              Salesman algorithm/ Nearest Neighbour algorithm the closest Node/Point is set to be the next destination
              in the Path to cover all the points. This exercise is then repeated till all the Nodes/ Points are covered.
-             The implementation for our case uses selection sort algorithm, in which the nearest neighbour 
+             The implementation for our case uses selection sort algorithm, in which the nearest neighbour
              is picked and its position is swapped with the element at the next Node in the array.
  Example   : BotPath.sortForGreedyAlgorithm();
 */
@@ -398,7 +398,6 @@ class BotVectorPath
       Logic     : It's an accessor function returning branchCount i.e. a member of the class.
       Example   : int N=BotVecPath.getBranchCount();
      */
-
      int getBranchCount()
      {
            return branchCount;
