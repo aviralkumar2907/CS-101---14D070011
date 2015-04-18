@@ -1,4 +1,4 @@
-#       CS 101 PROJECT SPRING 2015
+#######       CS 101 PROJECT SPRING 2015
 #          GROUP NUMBER 418
        PROJECT TITLE "Optimised Ball Collector"
             14D070011 - Sudeep Salgia 
