@@ -1,82 +1,5 @@
 
-/* Program - Image Processing to identify balls and find out the coordinates of the centres of the balls
-
-    Header Files Used:  1.Iostream
-                        2.Opencv Library
-                        3.Vector
-                        4.fstream
-    Uses of the Header Files:
-                        1.iostream -
-                            ->iostream is used to take input such as the length of the arena and also for the output.
-                            ->All the input and output functions are handled with iostream.
-
-                        2.opencv-
-                            ->OpenCV (Open Source Computer Vision) is a library of programming functions mainly aimed at real-time computer vision.
-                            ->All the Image processing in the code is taken care by opencv library function
-                                and pre defined data tyes of opencv such as Mat,etc
-                            ->In Built functions and Data types of opencv library used in this code:
-
-                                KeyWords
-
-                                    1.Mat-
-                                        Mat is basically a class with two data parts: the matrix header (containing information
-                                        such as the size of the matrix, the method used for storing, at which address is the matrix stored, and so on)
-                                        and a pointer to the matrix containing the pixel values (taking any dimensionality depending on the method chosen for storing) .
-                                        The matrix header size is constant, however the size of the matrix itself may vary from image
-                                        to image and usually is larger by orders of magnitude.
-
-                                    2.CV_WINDOW_AUTOSIZE-
-                                        This keyword when used makes sure that the window created to display an image would be of the size of the image to be displayed.
-
-                                    3.CV_BGR2HSV-
-                                        This Keyword is used to convert the image from RGB format to HSV format.
-
-                                    4.MORPH_ELLLIPSE-
-                                        It denotes that the element to be created is ellipse. It is used in getStructuringelement function.
-
-                                    5.CV_8UC1-
-                                        It is used to define a image with just one channel.
-
-                                Functions:
-
-                                    1.imread-
-                                        The Function is used to read an image into a Mat data type .The Image must be present in the directory where the code is present.
-
-                                    2.resize-
-                                        This Funtion is used resize the image read into the Mat data type.It is a must if the image goes out of the screen .
-
-                                    3.cvtColor-
-                                        This function is used for image transformations.For Example the image has been converted from RGB format to HSV format
-                                        for efficient work of the code.
-
-                                    4.namedWindow-
-                                        This Function is used to create a window for displaying the image.
-
-                                    5.imshow-
-                                        This Function is used to display the image in the created Display Window.
-
-                                    6.waitKey-
-                                        It waits for the press of a key.until the time specified in the parameter and if zero is provided the program waits
-                                        forever for the press of a key.
-
-                                    7.GaussianBlue-
-                                        This is an in-built funtion used to create a transition in those area where the pixels values change abruptly.
-                                        Thus it smooths the sharp change in pixel values.
-
-                                    8.getStructuringelement-
-                                        This function is used to create a Mat element that would be used in the functions erode and dilate.
-
-                                    9.Erode-
-                                        This function is used to expand the pixels around its neighbourhood.
-
-                                    10.Dilate-
-                                        This Function is used to reduce the size of the certain areas of pixels according to the structuring element .
-
-
-    Logic -  OpenCV library has been used for this code. In order to find out the coordinates of the balls, we find out the pixels of the balls
-                and average them individually to get their centers and with a scale factor we get the real world coordinates.*/
-#include <iostream>
-#include <conio.h>
+#include <gtk/gtk.h>
 #include <stdlib.h>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -85,16 +8,105 @@
 #include <fstream>
 #include <shortestpath.h>
 #include <xbee.h>
+#include <cstring>
+#include <string>
 using namespace cv;
 using namespace std;
 
-
-struct Node1 {
-        double x;
-        double y;
+struct file
+{
+char filepath[100];
+char dimension[100];
 };
 
-//
+file* data = new file;
+
+//image function copies the address of the file that has been entered by the user in the entry boxes into the data->filepath variable
+void image(GtkWidget *widget,  GtkWidget *entry)
+{
+	strcpy(data->filepath, gtk_entry_get_text(GTK_ENTRY(entry)));
+
+	cout<<data->filepath;
+
+
+
+}
+
+//dim function copies the dimension of the image entered the image into the variable data->dimension
+void dim(GtkWidget *widget, GtkWidget *entry)
+{
+	strcpy(data->dimension, gtk_entry_get_text(GTK_ENTRY(entry)));
+    cout<<data->dimension;
+
+}
+
+//new1 function is used for creating a new windows, using GtkWidget* and then creates  entry fields for entering the
+//path and the dimension of the image. It also has a PROCEED button clicking on which causes the rest of the program, i.e.
+//the image processing and shortest path algorithm to start.
+void new1()
+{
+    //GtkWidget is used to create Gtk Widgets, and these widgets can be buttons, windows, entry fields, labels, etc;
+    GtkWidget *window;
+    GtkWidget *label;
+    GtkWidget *proceed;
+    GtkWidget *fixed;
+    GtkWidget *entryfile;
+    GtkWidget *entrydim;
+
+  window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+  gtk_window_set_title(GTK_WINDOW(window), "WELCOME");              //sets the title of the window created
+  gtk_window_set_default_size(GTK_WINDOW(window), 400, 550);        //sets the default size for the window
+  gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);  //positions the window t the center of the screen
+
+  fixed= gtk_fixed_new();
+  gtk_container_add(GTK_CONTAINER(window), fixed);
+
+  label = gtk_label_new("Enter the full path of the image");
+  gtk_fixed_put(GTK_FIXED(fixed), label, 75, 150);
+
+  label = gtk_label_new("The Dimension you enter must be vertical!");
+  gtk_fixed_put(GTK_FIXED(fixed), label, 75, 250);
+
+//gtk_label_new() returns a Widget which is text written on the window displayed i.e. it creates a new label .
+  label = gtk_label_new("Image File:");
+  gtk_fixed_put(GTK_FIXED(fixed), label, 50, 100);
+
+  label = gtk_label_new(" Dimension:");
+  gtk_fixed_put(GTK_FIXED(fixed), label, 50, 200);
+
+   //gtk_entry_new() is tthe function used to create a new gtk_entry field.
+   entryfile = gtk_entry_new();
+   gtk_fixed_put(GTK_FIXED(fixed),entryfile, 175, 100);
+
+    //g_signal_connect is used to run the function passed as parameter to the G_CALLBACK function with the parameter
+    //entryfile in "activate" mode i.e. by pressing enter click after filling in the text box
+   g_signal_connect(G_OBJECT(entryfile),"activate",G_CALLBACK(image),entryfile);
+
+   entrydim = gtk_entry_new(); //gtk_entry_new() is tthe function used to create a new gtk_entry field.
+   gtk_fixed_put(GTK_FIXED(fixed),entrydim, 175, 200);
+
+   //g_signal_connect is used to run the function passed as parameter to the G_CALLBACK function i.e. the function dim()
+   //with the parameter entrydim in "activate" mode i.e. by pressing enter click after filling in the text box
+   g_signal_connect(G_OBJECT(entrydim),"activate",G_CALLBACK(dim),entrydim);
+
+   //gtk_button_with_new_label is a functon returning a Gtkidget* used to create a new button with the label of "PROCEED"
+   proceed=gtk_button_new_with_label("PROCEED");
+   gtk_fixed_put(GTK_FIXED(fixed), proceed,300,300);
+
+   //clicked type calls the function gtk_main_quit when the PROCEED button is clicked
+   g_signal_connect(G_OBJECT(proceed),"clicked",G_CALLBACK(gtk_main_quit),NULL);
+
+   //gtk_main_quit is a function that is used to close all windows and quit the GUI.
+   g_signal_connect_swapped(G_OBJECT(window), "destroy",
+    G_CALLBACK(gtk_main_quit), NULL);
+
+
+   gtk_widget_show_all(window);
+
+
+}
+
+// Points class is used to represent, ccess and modify the points in the program
 class Points
 {
         public:
@@ -112,6 +124,12 @@ class Points
             }
 
 };
+
+/*Function- getBinaryImage(Mat &img)
+Input- an openCV 3 channel image matrix
+Output- none (just converts a coloured image may to a black and white binary image)
+Logic - Using proper threshold values for the image taken, the pixels with Red, Green and blue values corresponding to the balls are converted to white and the remaining are converted to black. In other words, other colours are filtered out from the image for easy processing after this.
+*/
 
 void getBinaryImage (Mat &img)
 {
@@ -134,6 +152,13 @@ void getBinaryImage (Mat &img)
         }
     }
 }
+/*
+Function - convertToDigitalisedImage(Mat& img , Mat& img)
+Input - 2 Mat passed by reference: Mat A - 3 channeled, Mat B - single channeled
+Output - None (Just stores the 3-channel binary image developed earlier in a single channel format
+Logic - The three channeled input image is searched for white pixels and in the corresponding pixels in the output single channeled image, white values are stored.
+
+*/
 void convertToDigitalisedImage(Mat& ImgMatrixA, Mat& ImgMatrixB)
 {
     int i, j;
@@ -157,6 +182,12 @@ void convertToDigitalisedImage(Mat& ImgMatrixA, Mat& ImgMatrixB)
     }
 }
 
+/*Function - bgr2hsv2bgr(Mat& img)
+Input - a Mat 3-channeled image
+Output - Outputs an image such that the balls remain in their original colour and remaining background turns red.
+Logic - Converts the image to HSV and then converts those pixels which don’t have H values(hue values) between
+10 and 40 to H = 0 (red), and let the balls be in their original colour.
+*/
 void bgr2hsv2bgr(Mat& img)
 {
     Vec3b hsv;
@@ -178,6 +209,12 @@ void bgr2hsv2bgr(Mat& img)
         }
     }
 }
+
+/*Function- void edgeDetect(Mat & )
+Inputs- Mat &ImgMatrix , i.e. reference to some image matrix
+Outputs- Changes the given matrix into matrix containing only the edges of the balls instead of completely filled balls.
+Logic- Checking the value of color of the pixel, after applying Gaussian blur, errosion and dilate to DigitalisedImageMatrix, to identify if it's an edge point. The edge point is defined to have color value 50 - 150. This function drastically reduces the number of points to be accounted for, per ball.
+*/
 
 void edgeDetect(Mat &ImgMatrix)
 {
@@ -316,7 +353,7 @@ void storevalues(vector<Points>& Centres)
     ofstream ofile;
     ofile.open("Points.dat",ios::binary|ios::out);
     vector<Points>::iterator it;         // using iterator to access points stored in vector.
-    Node1 temp;
+    Node temp;
     temp.x =0;
     temp.y =0;
     ofile.write ((char*)&temp, sizeof(temp));
@@ -325,15 +362,107 @@ void storevalues(vector<Points>& Centres)
         {
             temp.x = it->x;
             temp.y = it->y;
+			temp.nextNode=NULL;
             ofile.write ((char*)&temp, sizeof(temp));
         }
 }
 
-int main()
+int main(int argc, char* argv[])
 {
-    cout<<"----------OPTIMISED BALL COLLECTOR-----------";
+     //GtkWidget is used to create Gtk Widgets, and these widgets can be buttons, windows, entry fields, labels, etc;
+    GtkWidget *window;
+  GtkWidget *label;
+  GtkWidget *fixed;
+  GtkWidget *moveon;
+  //GtkWidget *decrypt;
+  GtkWidget *quit;
+
+  gtk_init(&argc, &argv); //initiaises the gtk GUI in the main()
+
+  window = gtk_window_new(GTK_WINDOW_TOPLEVEL); //gtk_window_new() is used to return a Widget which is of window type
+  gtk_window_set_title(GTK_WINDOW(window), "OPTIMISED BALL COLLECTOR"); // sets title for the window created
+  gtk_window_set_default_size(GTK_WINDOW(window), 400, 550); // sets the default size of the window to be created
+  gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER); // places the window created on the center of the screen
+
+
+
+   fixed= gtk_fixed_new();  //  a container which allows you to position widgets at fixed coordinates
+  gtk_container_add(GTK_CONTAINER(window), fixed);
+
+    //gtk_label_new() returns a Widget which is text written on the window displayed i.e. it creates a new label .
+  label = gtk_label_new("OPTIMISED BALL COLLECTOR");
+  gtk_fixed_put(GTK_FIXED(fixed), label, 110, 100); //this function is used to place the label at the position specified
+
+  label=gtk_label_new("CS101 - SPRING 2015");
+  gtk_fixed_put(GTK_FIXED(fixed),label,140,150);
+
+  label=gtk_label_new("Sudeep Salgia");
+  gtk_fixed_put(GTK_FIXED(fixed),label,100,175);
+
+  label=gtk_label_new("Aviral Kumar");
+  gtk_fixed_put(GTK_FIXED(fixed),label,100,200);
+
+  label=gtk_label_new("Sohum Dhar");
+  gtk_fixed_put(GTK_FIXED(fixed),label,100,225);
+
+  label=gtk_label_new("MuthamizhSelvan S.");
+  gtk_fixed_put(GTK_FIXED(fixed),label,100,250);
+
+  label=gtk_label_new("14D070011");
+  gtk_fixed_put(GTK_FIXED(fixed),label,240,175);
+
+  label=gtk_label_new("140070031");
+  gtk_fixed_put(GTK_FIXED(fixed),label,240,200);
+
+  label=gtk_label_new("140070001");
+  gtk_fixed_put(GTK_FIXED(fixed),label,240,225);
+
+   label=gtk_label_new("140110091");
+  gtk_fixed_put(GTK_FIXED(fixed),label,240,250);
+
+  label=gtk_label_new("TA:");
+  gtk_fixed_put(GTK_FIXED(fixed),label,100,295);
+
+  label=gtk_label_new("Chinmay Kulkarni");
+  gtk_fixed_put(GTK_FIXED(fixed),label,240,295);
+
+   //gtk_button_with_new_label is a functon returning a Gtkidget* used to create a new button with the label of "PROCEED"
+   moveon=gtk_button_new_with_label("Click here to Proceed");
+  gtk_fixed_put(GTK_FIXED(fixed), moveon,125,400);
+
+
+
+  g_signal_connect(G_OBJECT(moveon),"clicked",G_CALLBACK(new1),NULL);
+
+
+
+  g_signal_connect_swapped(G_OBJECT(window), "destroy",
+      G_CALLBACK(gtk_main_quit), NULL);
+
+
+
+
+   quit=gtk_button_new_with_label("Exit");
+   gtk_fixed_put(GTK_FIXED(fixed), quit,175,450);
+
+   g_signal_connect(G_OBJECT(quit), "clicked",
+      G_CALLBACK(gtk_main_quit), G_OBJECT(window));
+
+   g_signal_connect_swapped(G_OBJECT(window), "destroy",
+      G_CALLBACK(gtk_main_quit), NULL);
+
+
+    gtk_widget_show_all(window); // show_all() is used o display the window created on the screen
+
+    gtk_main();
+
+    //cout<<"----------OPTIMISED BALL COLLECTOR-----------";
+    string str = data->filepath;
+    //string::size_type sz;
+    int actual1 = atoi(data->dimension);
+    double actual = (double) actual1;
     Mat img;
-    img=imread("image.jpg",1);
+    img=imread(str,1);
     while(img.cols>1024)
     {
         resize(img, img, Size (img.cols/3,img.rows/3));
@@ -355,9 +484,9 @@ int main()
     convertToDigitalisedImage(img,singleimg);
     GaussianBlur(singleimg, singleimg, Size(9,9), 0,0);
     edgeDetect(singleimg);
-    double actual;
-    cout<<endl<<"Enter actual Length of arena:  ";
-    cin>>actual;
+    //double actual;
+   // cout<<endl<<"Enter actual Length of arena:  ";
+    //cin>>actual;
     double ratios = actual/(img.rows);
         //Declaring vectors to store all points for each ball, one by one, and all the centres of balls in the arena
     vector<Points> AllPoints;
@@ -449,3 +578,9 @@ int main()
     return 0;
 
 }
+
+
+
+
+
+
