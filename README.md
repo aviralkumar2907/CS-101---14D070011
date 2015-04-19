@@ -6,7 +6,7 @@
                                                  140070001 - Sohum Dhar
                                                  140110091 - muthamizhSelvan S. 
                   Youtube working project link : https://www.youtube.com/watch?v=on3euKLPWc0
-                  Youtube video tutorial link  :
+                  Youtube video tutorial link  : https://www.youtube.com/watch?v=XAYdx7oH660
 
 
 Instructions for Setup:
