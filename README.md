@@ -5,6 +5,9 @@
                                                  140070031 - Aviral Kumar 
                                                  140070001 - Sohum Dhar
                                                  140110091 - muthamizhSelvan S. 
+                  Youtube working project link : https://www.youtube.com/watch?v=on3euKLPWc0
+                  Youtube video tutorial link  :
+
 
 Instructions for Setup:
 
@@ -73,12 +76,7 @@ The initial position of the robot has to be in a specific orientation. It is kep
 Also it needs to be ensured that the center of the shaft of the robot has to be kept at the point of intersection of the coordinate axes.
 
 
-Possible bugs and their solutions:
 
-Insufficient or varying intensities of light might change the colours of the object in the image in such a way that the present thresholding doesn’t give the required output. In such cases, it should be ensured that the arena is well lit.
-The error reduction is primarily implemented by a sharp sensor. It should be taken care of that the arena should be free of any obstacles. The reading from the sensor is fluctuating and often takes time to settle especially if there is a movement nearby. As a result, the reading from the sensor can be a wrong value and the bot might thus just get deviated from its path. There is no permanent solution to the problem as such but such incidents can be reduced considerably by ensuring there is no movement that the sensor might possibly detect and if possible there are no obstacles within about a meter so from where the balls have been kept.  
-There might be random errors in the hardware or the wireless communication. Such random events cannot be predicted and thus finding a long-term, permanent solution is difficult. Such problems are often eliminated in the next run.
-The threshold values are adjusted for ping-pong balls. Preferably they should be used placed upon a small stand so that the sharp sensor can detect them. If these conditions are not met with the bot might not work properly. Please ensure that these preconditions are met with.
 
 
 
